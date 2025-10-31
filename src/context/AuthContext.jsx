@@ -20,45 +20,10 @@ export const AuthProvider = ({ children }) => {
     // Initialize users storage FIRST - this ensures stored data is loaded
     const allUsers = initializeUsers(mockUsers)
     
-    // Check for stored user session
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser)
-        // Always get the latest user data from stored users array (preserves all updates)
-        const latestUser = allUsers.find(u => u.id === userData.id)
-        
-        if (latestUser) {
-          // Use the complete user data from storage (has all updates)
-          const userWithoutPassword = { ...latestUser }
-          delete userWithoutPassword.password
-          setUser(userWithoutPassword)
-          localStorage.setItem('user', JSON.stringify(userWithoutPassword))
-        } else {
-          // User not found in storage, use stored session data
-          const userWithoutPassword = { ...userData }
-          delete userWithoutPassword.password
-          setUser(userWithoutPassword)
-          localStorage.setItem('user', JSON.stringify(userWithoutPassword))
-        }
-      } catch (error) {
-        console.error('Error parsing stored user:', error)
-        localStorage.removeItem('user')
-        // Set default user for demo purposes
-        const defaultUser = allUsers.find(u => u.id === mockCurrentUser.id) || mockCurrentUser
-        const userWithoutPassword = { ...defaultUser }
-        delete userWithoutPassword.password
-        setUser(userWithoutPassword)
-        localStorage.setItem('user', JSON.stringify(userWithoutPassword))
-      }
-    } else {
-      // No stored session - set default user for demo purposes
-      const defaultUser = allUsers.find(u => u.id === mockCurrentUser.id) || mockCurrentUser
-      const userWithoutPassword = { ...defaultUser }
-      delete userWithoutPassword.password
-      setUser(userWithoutPassword)
-      localStorage.setItem('user', JSON.stringify(userWithoutPassword))
-    }
+    // Always start at login page - clear stored session on app start
+    // This ensures users must log in every time they refresh or open the app
+    localStorage.removeItem('user')
+    setUser(null)
     setLoading(false)
   }, [])
 

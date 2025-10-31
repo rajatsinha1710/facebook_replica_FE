@@ -21,7 +21,7 @@ const Login = () => {
     const result = await login(email, password)
 
     if (result.success) {
-      navigate('/')
+      navigate('/home')
     } else {
       setError(result.error || 'Login failed. Please try again.')
     }

@@ -16,7 +16,7 @@ const Sidebar = () => {
   const { user } = useAuth()
 
   const navItems = [
-    { icon: FiHome, label: 'Home', path: '/' },
+    { icon: FiHome, label: 'Home', path: '/home' },
     { icon: FiUser, label: 'Profile', path: `/profile/${user?.id}` },
     { icon: FiUsers, label: 'Friends', path: '/friends' },
     { icon: FiMessageCircle, label: 'Messages', path: '/messages' },
@@ -27,8 +27,8 @@ const Sidebar = () => {
   ]
 
   const isActive = (path) => {
-    if (path === '/') {
-      return location.pathname === '/'
+    if (path === '/home') {
+      return location.pathname === '/home'
     }
     return location.pathname.startsWith(path)
   }
