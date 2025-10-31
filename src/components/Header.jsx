@@ -32,7 +32,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
+          <Link to="/home" className="flex items-center space-x-3 group">
             <div className="relative transition-transform group-hover:scale-105">
               <img 
                 src="/logo.svg" 
@@ -62,7 +62,7 @@ const Header = () => {
           {/* Navigation Icons */}
           <div className="flex items-center space-x-2">
             <Link
-              to="/"
+              to="/home"
               className="relative p-2.5 text-secondary-600 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded-xl transition-all duration-200"
               title="Home"
             >

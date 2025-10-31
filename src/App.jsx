@@ -28,13 +28,14 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/" element={<Navigate to="/login" replace />} />
               <Route
                 path="/*"
                 element={
                   <PrivateRoute>
                     <Layout>
                       <Routes>
-                        <Route path="/" element={<Home />} />
+                        <Route path="/home" element={<Home />} />
                         <Route path="/profile/:userId" element={<Profile />} />
                         <Route path="/friends" element={<Friends />} />
                         <Route path="/messages" element={<Messages />} />

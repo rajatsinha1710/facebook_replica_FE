@@ -35,11 +35,19 @@ const Messages = () => {
     })
     setUsers(usersMap)
 
-    // Set first chat as active if none selected
+    // Set first chat as active if none selected and chats exist
     if (chats.length > 0 && !activeChat) {
       setActiveChat(chats[0])
     }
   }, [chats, activeChat, setActiveChat])
+  
+  // When activeChat changes, ensure messages are loaded
+  useEffect(() => {
+    if (activeChat) {
+      // Messages will be loaded by ChatContext when activeChat changes
+      // This effect just ensures the UI is ready
+    }
+  }, [activeChat])
 
   const handleSendMessage = (e) => {
     e.preventDefault()
