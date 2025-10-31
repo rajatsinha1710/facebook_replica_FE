@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useChat } from '../context/ChatContext'
 import { mockUsers, mockPosts } from '../api/mockData'
 import PostCard from '../components/PostCard'
-import { FiMapPin, FiBriefcase, FiBook, FiCalendar, FiUserPlus, FiCheck, FiX, FiCamera } from 'react-icons/fi'
+import { FiMapPin, FiBriefcase, FiBook, FiCalendar, FiUserPlus, FiCheck, FiX, FiCamera, FiMessageCircle } from 'react-icons/fi'
 import { initializeUsers, initializePosts, getStoredData, STORAGE_KEYS, updatePost as updatePostStorage, updateUser as updateUserStorage } from '../utils/storage'
 
 const Profile = () => {
   const { userId } = useParams()
   const { user: currentUser, updateUser } = useAuth()
+  const { startChat } = useChat()
+  const navigate = useNavigate()
   const [profileUser, setProfileUser] = useState(null)
   const [posts, setPosts] = useState([])
   const [users, setUsers] = useState({})
@@ -67,6 +70,12 @@ const Profile = () => {
     // Simulate friend request sent
     alert('Friend request sent!')
     // Note: This would normally add the request to the other user's friendRequests array
+  }
+
+  const handleStartChat = () => {
+    if (!profileUser || !currentUser) return
+    startChat(profileUser.id)
+    navigate('/messages')
   }
 
   const handlePostUpdate = (updatedPost) => {
@@ -291,7 +300,14 @@ const Profile = () => {
             </div>
           </div>
           {!isOwnProfile && (
-            <div className="mt-4 md:mt-0">
+            <div className="mt-4 md:mt-0 flex items-center space-x-3">
+              <button
+                onClick={handleStartChat}
+                className="flex items-center space-x-2 bg-primary-600 dark:bg-primary-500 text-white px-6 py-2 rounded-xl font-semibold hover:bg-primary-700 dark:hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/20 dark:shadow-primary-500/10"
+              >
+                <FiMessageCircle className="w-5 h-5" />
+                <span>Message</span>
+              </button>
               {isFriend ? (
                 <button className="flex items-center space-x-2 bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 px-6 py-2 rounded-xl font-semibold hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-colors">
                   <FiCheck className="w-5 h-5" />
@@ -300,7 +316,7 @@ const Profile = () => {
               ) : (
                 <button
                   onClick={handleFriendRequest}
-                  className="flex items-center space-x-2 bg-primary-600 dark:bg-primary-500 text-white px-6 py-2 rounded-xl font-semibold hover:bg-primary-700 dark:hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/20 dark:shadow-primary-500/10"
+                  className="flex items-center space-x-2 bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 px-6 py-2 rounded-xl font-semibold hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-colors"
                 >
                   <FiUserPlus className="w-5 h-5" />
                   <span>Add Friend</span>

@@ -75,9 +75,13 @@ const Signup = () => {
       <div className="max-w-md w-full">
         {/* Logo and Title */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center space-x-2 mb-4 group">
-            <div className="bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-500 dark:to-primary-600 text-white p-3 rounded-xl shadow-lg shadow-primary-500/20 dark:shadow-primary-500/10 transition-transform group-hover:scale-105">
-              <FiHome className="w-8 h-8" />
+          <Link to="/" className="inline-flex items-center space-x-3 mb-4 group">
+            <div className="relative transition-transform group-hover:scale-105">
+              <img 
+                src="/logo.svg" 
+                alt="ConnectHub Logo" 
+                className="w-12 h-12"
+              />
             </div>
             <span className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-400 dark:to-primary-500 bg-clip-text text-transparent">
               ConnectHub

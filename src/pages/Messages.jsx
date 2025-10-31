@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../context/ChatContext'
@@ -13,6 +13,17 @@ const Messages = () => {
   const [messageInput, setMessageInput] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [users, setUsers] = useState({})
+  const messagesEndRef = useRef(null)
+  const messagesContainerRef = useRef(null)
+
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, activeChat])
 
   useEffect(() => {
     // Load users from storage
@@ -135,9 +146,13 @@ const Messages = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-secondary-50/50 dark:bg-secondary-800/30">
+            <div 
+              ref={messagesContainerRef}
+              className="flex-1 overflow-y-auto p-4 space-y-4 bg-secondary-50/50 dark:bg-secondary-800/30"
+            >
               {messages
                 .filter(m => m.chatId === activeChat.id)
+                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map(message => {
                   const isOwnMessage = message.senderId === user?.id
                   const sender = isOwnMessage ? user : users[message.senderId]
@@ -165,6 +180,7 @@ const Messages = () => {
                     </div>
                   )
                 })}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Message Input */}

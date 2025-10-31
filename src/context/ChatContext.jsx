@@ -19,36 +19,57 @@ export const ChatProvider = ({ children }) => {
   const [activeChat, setActiveChat] = useState(null)
   const [messages, setMessages] = useState([])
 
-  useEffect(() => {
-    if (user) {
-      // Initialize chats and messages from storage
-      const storedChats = initializeData(STORAGE_KEYS.CHATS, mockChats)
-      
-      // Filter chats for current user
-      const userChats = storedChats.filter(
-        chat => chat.participants.includes(user.id)
-      )
-      setChats(userChats)
+  // Function to load chats and messages
+  const loadChatData = () => {
+    if (!user) return
 
-      // Load messages from storage
-      const storedMessages = getStoredData(STORAGE_KEYS.MESSAGES, mockMessages)
-      const userMessages = storedMessages.filter(
-        m => userChats.some(chat => chat.id === m.chatId)
-      )
-      setMessages(userMessages)
+    // Initialize chats and messages from storage
+    const storedChats = initializeData(STORAGE_KEYS.CHATS, mockChats)
+    
+    // Filter chats for current user (chats where user is a participant)
+    const userChats = storedChats.filter(
+      chat => chat.participants.includes(user.id)
+    )
+    setChats(userChats)
 
-      if (activeChat) {
-        const chatMessages = userMessages.filter(
-          m => m.chatId === activeChat.id
-        )
-        setMessages(chatMessages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)))
-      }
+    // Load messages from storage
+    const storedMessages = getStoredData(STORAGE_KEYS.MESSAGES, mockMessages)
+    
+    // Get messages for all user's chats
+    const userMessages = storedMessages.filter(
+      m => userChats.some(chat => chat.id === m.chatId)
+    )
+    setMessages(userMessages)
+
+    // If there's an active chat, filter messages for it
+    if (activeChat) {
+      const chatMessages = storedMessages.filter(
+        m => m.chatId === activeChat.id
+      )
+      setMessages(chatMessages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)))
     }
+  }
+
+  useEffect(() => {
+    loadChatData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
+
+  // Poll for new messages every 2 seconds (simulates real-time updates)
+  useEffect(() => {
+    if (!user) return
+
+    const interval = setInterval(() => {
+      loadChatData()
+    }, 2000) // Check every 2 seconds
+
+    return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, activeChat])
 
   useEffect(() => {
     if (activeChat && user) {
-      const storedMessages = getStoredData(STORAGE_KEYS.MESSAGES, mockMessages)
+      const storedMessages = getStoredData(STORAGE_KEYS.MESSAGES, [])
       const chatMessages = storedMessages.filter(
         m => m.chatId === activeChat.id
       )
@@ -72,9 +93,11 @@ export const ChatProvider = ({ children }) => {
     const storedMessages = getStoredData(STORAGE_KEYS.MESSAGES, [])
     const updatedMessages = [...storedMessages, newMessage]
     saveStoredData(STORAGE_KEYS.MESSAGES, updatedMessages)
+    
+    // Optimistically update UI
     setMessages(prev => [...prev, newMessage])
     
-    // Update chat last message in storage
+    // Update chat last message in storage (this will be visible to both participants)
     const storedChats = getStoredData(STORAGE_KEYS.CHATS, [])
     const updatedChats = storedChats.map(chat =>
       chat.id === chatId
@@ -83,33 +106,28 @@ export const ChatProvider = ({ children }) => {
     )
     saveStoredData(STORAGE_KEYS.CHATS, updatedChats)
     setChats(updatedChats.filter(chat => chat.participants.includes(user.id)))
-
-    // Simulate receiving a response after 1-2 seconds
-    setTimeout(() => {
-      const response = {
-        id: (Date.now() + 1).toString(),
-        chatId,
-        senderId: activeChat?.participants.find(id => id !== user.id),
-        content: 'Thanks for your message!',
-        createdAt: new Date().toISOString(),
-        read: false,
-      }
-      const updatedMessagesWithResponse = [...updatedMessages, response]
-      saveStoredData(STORAGE_KEYS.MESSAGES, updatedMessagesWithResponse)
-      setMessages(prev => [...prev, response])
-    }, 1000 + Math.random() * 1000)
   }
 
   const startChat = (userId) => {
-    if (!user) return
+    if (!user || userId === user.id) return
     
-    const existingChat = chats.find(chat =>
-      chat.participants.includes(userId) && chat.participants.length === 2
-    )
+    // Check in storage for existing chat between these two users
+    const storedChats = getStoredData(STORAGE_KEYS.CHATS, [])
+    const existingChat = storedChats.find(chat => {
+      const participants = chat.participants || []
+      return participants.length === 2 && 
+             participants.includes(user.id) && 
+             participants.includes(userId)
+    })
     
     if (existingChat) {
       setActiveChat(existingChat)
+      // Ensure chat is in current user's chat list
+      if (!chats.find(c => c.id === existingChat.id)) {
+        setChats(prev => [...prev, existingChat])
+      }
     } else {
+      // Create new chat - this will be visible to both users
       const newChat = {
         id: Date.now().toString(),
         participants: [user.id, userId],
