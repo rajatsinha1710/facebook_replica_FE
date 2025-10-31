@@ -32,11 +32,15 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-500 dark:to-primary-600 text-white p-2 rounded-xl shadow-lg shadow-primary-500/20 dark:shadow-primary-500/10 transition-transform group-hover:scale-105">
-              <FiHome className="w-5 h-5" />
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="relative transition-transform group-hover:scale-105">
+              <img 
+                src="/logo.svg" 
+                alt="ConnectHub Logo" 
+                className="w-10 h-10"
+              />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-400 dark:to-primary-500 bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-400 dark:to-primary-500 bg-clip-text text-transparent hidden sm:block">
               ConnectHub
             </span>
           </Link>

@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useChat } from '../context/ChatContext'
 import { mockUsers } from '../api/mockData'
-import { FiUserPlus, FiCheck, FiX, FiSearch } from 'react-icons/fi'
+import { FiUserPlus, FiCheck, FiX, FiSearch, FiMessageCircle } from 'react-icons/fi'
 import { initializeUsers, getStoredData, updateUser as updateUserStorage, STORAGE_KEYS } from '../utils/storage'
 
 const Friends = () => {
   const { user, updateUser } = useAuth()
+  const { startChat } = useChat()
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('all') // all, requests, suggestions
   const [searchQuery, setSearchQuery] = useState('')
   const [friends, setFriends] = useState([])
@@ -66,6 +69,12 @@ const Friends = () => {
 
   const handleRejectRequest = (requestId) => {
     setFriendRequests(prev => prev.filter(r => r.requestId !== requestId))
+  }
+
+  const handleStartChat = (userId) => {
+    if (!userId || userId === user?.id) return
+    startChat(userId)
+    navigate('/messages')
   }
 
   const handleSendRequest = (userId) => {
@@ -149,20 +158,31 @@ const Friends = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredFriends.length > 0 ? (
                 filteredFriends.map(friend => (
-                  <Link
+                  <div
                     key={friend.id}
-                    to={`/profile/${friend.id}`}
-                    className="bg-secondary-50 dark:bg-secondary-800/50 rounded-2xl p-4 hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors group border border-secondary-200 dark:border-secondary-700"
+                    className="bg-secondary-50 dark:bg-secondary-800/50 rounded-2xl p-4 border border-secondary-200 dark:border-secondary-700"
                   >
-                    <img
-                      src={friend.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'}
-                      alt={friend.name}
-                      className="w-full aspect-square rounded-xl object-cover mb-3 group-hover:opacity-90"
-                    />
-                    <h3 className="font-semibold text-secondary-900 dark:text-secondary-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                      {friend.name}
-                    </h3>
-                  </Link>
+                    <Link
+                      to={`/profile/${friend.id}`}
+                      className="block group"
+                    >
+                      <img
+                        src={friend.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'}
+                        alt={friend.name}
+                        className="w-full aspect-square rounded-xl object-cover mb-3 group-hover:opacity-90 transition-opacity"
+                      />
+                      <h3 className="font-semibold text-secondary-900 dark:text-secondary-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors mb-3">
+                        {friend.name}
+                      </h3>
+                    </Link>
+                    <button
+                      onClick={() => handleStartChat(friend.id)}
+                      className="w-full flex items-center justify-center space-x-2 bg-primary-600 dark:bg-primary-500 text-white px-4 py-2 rounded-xl font-semibold hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors shadow-lg shadow-primary-500/20 dark:shadow-primary-500/10"
+                    >
+                      <FiMessageCircle className="w-5 h-5" />
+                      <span>Message</span>
+                    </button>
+                  </div>
                 ))
               ) : (
                 <p className="text-secondary-500 dark:text-secondary-400 col-span-full text-center py-8">
