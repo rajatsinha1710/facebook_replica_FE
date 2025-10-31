@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
 import { ChatProvider } from './context/ChatContext'
 import { ThemeProvider } from './context/ThemeContext'
@@ -18,6 +18,22 @@ import Search from './pages/Search'
 import PrivateRoute from './components/PrivateRoute'
 import Layout from './components/Layout'
 
+// Component to handle root path redirect
+const RootRedirect = () => {
+  const { isAuthenticated, loading } = useAuth()
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
+  
+  // If authenticated, redirect to home; otherwise, redirect to login
+  return <Navigate to={isAuthenticated ? '/home' : '/login'} replace />
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -28,7 +44,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/" element={<RootRedirect />} />
               <Route
                 path="/*"
                 element={
